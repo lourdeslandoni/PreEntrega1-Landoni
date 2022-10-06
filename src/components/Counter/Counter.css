@@ -1,0 +1,23 @@
+.counter {
+display: flex;
+justify-content: center;
+}
+
+button {
+    width: 5%;
+    margin: 10px;
+    background-color: #eee5e4;
+    font-size: 3rem;
+    text-decoration: none;
+    font-weight: bolder;
+    color: #da7294;
+    border-radius: 00.5rem;
+    border-color: #eee5e4;
+}
+
+.addToCart {
+    font-size: 1.5rem;
+    width: 15%;
+    background-color: #d9b6dd;
+    color: #e61359;
+}
