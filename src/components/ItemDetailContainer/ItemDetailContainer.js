@@ -1,38 +1,51 @@
-import { useState, useEffect } from "react";
-import { getProduct, getProducts } from "../../asyncMock"
+import './ItemDetailContainer.css'
+import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
-import Item from "../Item/Item";
-import Counter from "../Counter/Counter";
+import ItemDetailComponent from '../ItemDetailComponent/ItemDetailComponent'
+import Lottie from 'react-lottie';
+import pencil from '../lotties/pencil.json';
+import { getDoc, doc } from 'firebase/firestore'
+import { db } from '../../services/firebase/firebase'
 
 const ItemDetailContainer = () => {
-    const [product, setProduct] = useState({})
-    const [loading, setLoading] = useState(true)
 
-    const { productId } = useParams()
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: pencil,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice"
+    }
+  };
+
+  const {paramId} = useParams()
+  const [item, setitemDetails] = useState([])
+  let [loading, setLoading] = useState(true);
+
+  useEffect(() => { 
+          getDoc(doc(db, 'items', paramId)).then((querySnapshot) => {
+            const product = {id: querySnapshot.id, ...querySnapshot.data()}
+            setitemDetails(product)
+          }).catch((error) => {
+            console.log('Error seraching items', error)
+        }).finally(() => {
+            setLoading(false);
+        })
+          
+        }, [paramId])
+
+  return (
+    <div className="someContainer">
+      {item.id !== undefined ? <ItemDetailComponent item={item} /> : null}
+        {loading && <Lottie 
+                  options={defaultOptions}
+                  height={400}
+                  width={400}
+                  loading={loading}
+              />}
+    </div>
     
-    useEffect(() => {
-        getProduct(productId).then(product => {
-        setProduct(product)
-    }).finally(() => {
-        setLoading(false)
-    })
-}, [])
-
-console.log(product)
-
-if(loading) {
-    return <h1>Cargando Productos...</h1>
-}
-
-    return (
-        <div>
-            <h1>Detalle de Producto</h1>
-            <div>
-                <Item key={product.id} prod={product}/>
-                <Counter />
-            </div>
-        </div>
-    )
+  );
 }
 
 export default ItemDetailContainer;

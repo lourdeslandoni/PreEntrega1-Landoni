@@ -1,0 +1,27 @@
+
+.detailButton {
+
+    text-decoration: none;
+
+
+}
+.storeCardDetails Button {
+
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 18px;
+    text-decoration: none;
+    color: white;
+    background-color: #FFB9B9;
+
+}
+
+
+.storeCardDetails {
+display: flex;
+flex-direction: column;
+align-content: center;
+justify-content: center;
+align-items: center;
+flex-wrap: nowrap;
+/* padding-top: 120px */
+}
