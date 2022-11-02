@@ -1,10 +1,9 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
 import './Checkout.css'
 import { db } from '../../services/firebase/firebase'
 import { collection, addDoc } from 'firebase/firestore'
 import CartContext from '../../context/cartContext'
-import { mercadopagoOrder } from '../../services/mercadopago/mercadopago'
-import { useMercadopago } from 'react-sdk-mercadopago';
 import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -21,9 +20,11 @@ const theme = createTheme({
 
 const CheckOut = () => {
 
-    const mercadopago = useMercadopago.v2(process.env.REACT_APP_MERCADOPAGO_APP_USER, {
-        locale: 'es-AR'
-    });
+    const navigate = useNavigate();
+
+    const navigateToCongrats = () => {
+        navigate('/congrats');
+    };
 
     const { cart, amounts } = useContext(CartContext)
     const [email, setEmail] = useState("")
@@ -34,7 +35,7 @@ const CheckOut = () => {
     const [telephone, setTelephone] = useState("")
 
 
-    const checkoutMP = async () => {
+    const checkout = async () => {
 
         var firebaseOrderId = ""
         const newOrder = {
@@ -53,25 +54,13 @@ const CheckOut = () => {
         }).catch((error) => {
             console.log('Error creating order', error)
         }).finally(async () => {
-            const idOrder =  await mercadopagoOrder(amounts.totalAmount, window.location.origin + '/congrats', firebaseOrderId)
-            if (mercadopago) {
-                mercadopago.checkout({
-                    preference: {
-                        id: idOrder
-                    },
-                    render: {
-                        container: '.cho-container',
-                        label: 'Pagar por MercadoPago',
-                    }
-                })
-            }
+            navigateToCongrats()
         })
     }
 
     return (
         <ThemeProvider theme={theme}>
         <div className='checkOutContainer'>
-            <script src="https://sdk.mercadopago.com/js/v2"></script>
             <div className='formContainer' color="primary">
                 <form className='deliveryForm' color="primary">
                     <label htmlFor="email">Correo electronico</label>
@@ -86,16 +75,11 @@ const CheckOut = () => {
                     <input type="text" id='cp' name="cp" placeholder="Ingresa tu codigo postal" onChange={e => setCp(e.target.value)}></input>
                     <label htmlFor='telephone'>Número de teléfono</label>
                     <input type="number" id='telephone' name="telephone" placeholder="Ingresa tu teléfono" onChange={e => setTelephone(e.target.value)}></input>
-                    <Button disabled={email && name && address && city && cp && telephone ? false : true} color="primary" variant="contained" sx={{color:"whitesmoke"}} onClick={() => {checkoutMP()}}>Ya complete mis datos!</Button>
+                    <Button disabled={email && name && address && city && cp && telephone ? false : true} color="primary" variant="contained" sx={{color:"whitesmoke"}} onClick={() => {checkout()}}>Ya complete mis datos!</Button>
                 </form>
             </div>
-            <div className='mercadoPago'>
+            <div className='box'>
                 <h3>Usted esta pagando {amounts.totalAmount}$ por {amounts.totalItems} productos en total.</h3>
-                <div className="cho-container" />
-                <div>
-                    <p>Para probar el flujo completo de pago no tenes que estar logueado con tu cuenta personal ya que esta configurado con cuentas de prueba, te dejo las tarjetas:</p>
-                    <a href='https://www.mercadopago.com.ar/developers/en/guides/online-payments/checkout-pro/test-integration#bookmark_test_the_payment_flow'>Tarjetas de Prueba</a>
-                </div>
             </div>
         </div>
         </ThemeProvider>
